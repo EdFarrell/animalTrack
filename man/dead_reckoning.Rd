@@ -6,7 +6,8 @@ Calculate past, present, or future position using "dead reckoning" Bowditch (199
 }
 \usage{
 dead_reckoning(speed, heading, angle = "degree", ret = TRUE, depth = NULL,
-                     pitch = NULL, endcoords=NULL, speedhorizontal = "corrected")
+         pitch = NULL, startcoords=c(0,0), endcoords=NULL, coordsystem = "Cartesian",
+         speedhorizontal = "corrected")
 }
 \arguments{
   \item{speed}{
@@ -30,24 +31,37 @@ dead_reckoning(speed, heading, angle = "degree", ret = TRUE, depth = NULL,
   an object containing the values for calculated pitch. Both the \code{\link{pitch}} or 
   \code{\link{pitch2}} functions can be used. (Note: must be in radians). Optional.
   }
+  \item{startcoords}{
+  Coordinates for known location at the start of the track, \code{c(x,y)}. This defaults to NULL, 
+  in which case the start coordinates will default to \code{0,0}. If \code{coordsystem = "Cartesian
+  "}, the default will still be (0,0), unless the user provides input. If \code{coordsystem = 
+  "Cartesian"}, the user input x and y coordinates should be in meters. If \code{coordsystem = 
+  "Geographic"}, then the user should provide x and y coordinates in decimal degrees.
+  }    
   \item{endcoords}{
-  Coordinates for known location at the end of the track, \code{c(x,y)}. If \code{ret == F}, what 
-  are the ending cartesian coordinates (i.e. (\emph{x,y}))? This is the location
-  where \code{dead_reckoning} will correct the course to based on a constant set and drift.(NOTE: \code{ret}   
-  must be \code{FALSE}).
+  Coordinates for known location at the end of the track, \code{c(x,y)}. If \code{ret == F}, the 
+  user must provide the ending coordinates (i.e. (\emph{x,y})) of the track. This is the location
+  where \code{dead_reckoning} will correct the course to based on a constant set and drift.(NOTE:  
+  \code{ret} must be \code{FALSE}). If \code{coordsystem = "Cartesian"}, the default will still be 
+  (0,0), unless the user provides input. If \code{coordsystem = "Cartesian"}, the user input x and 
+  y coordinates should be in meters. If \code{coordsystem = "Geographic"}, then the user should 
+  provide x and y coordinates in decimal degrees.
   }
-  \item{speedhorizontal}{Indicates how the input speed values should be handled. Default is \code{"corrected"}, 
-  which indicates that the input speed values are horizontal speeds (i.e. speed across a plane tangent
-  to the surface of the earth). If \code{"pitch"}, then speed is assumed to be a 3D vector and will be corrected
-  to horizontal using \eqn{speedh = cos(\phi)*}\code{speed}. If \code{"depth"}, then speed is assumed to be a 3D 
-  vector and will be corrected to horizontal using \eqn{speedh = \sqrt (speed^2 - \Delta depth^2)}. Optional.
+  \item{coordsystem}{Coordinate system of \code{startcoords} and \code{endcoords} variables. This can be one of \code{"Cartesian" (default), "Geographic", "UTM"}. "Cartesian" will return coordinates (\code{CSx, CSy, CMGx, CMGy})from the function in meters on a Cartesian plane. "Geographic" will return geographic coordinates in decimal degrees. For "Geographic", the \code{startcoords} variable must have values in decimal degrees. "UTM" will return coordinates in Universal Tranverse Mercator (based on specified zone) in meters.
+  }
+  \item{speedhorizontal}{Indicates how the input speed values should be handled. Default is 
+  \code{"corrected"}, which indicates that the input speed values are horizontal speeds (i.e. speed 
+  across a plane tangent to the surface of the earth). If \code{"pitch"}, then speed is assumed to 
+  be a 3D vector and will be corrected   to horizontal using \eqn{speedh = cos(\phi)*}\code{speed}. 
+  If \code{"depth"}, then speed is assumed to be a 3D vector and will be corrected to horizontal 
+  using \eqn{speedh = \sqrt (speed^2 - \Delta depth^2)}. Optional.
   }
 }
 \details{
 See Bowditch (1995) for a complete discussion of dead reckoning and navigation. This function extends traditional 
 navigation calculations by providing the flexibility for 3-dimensional parameters common in animal tracking data.
 }
-\value{Object of class \code{navigate}, which is a list with the following components:
+\value{Object of class \code{dr}, which is a list with the following components:
 
   \item{CSx }{a numeric vector with the x-coordinates for the calculated course steered. Position ascertained through "dead reckoning".
   }
@@ -56,9 +70,11 @@ navigation calculations by providing the flexibility for 3-dimensional parameter
   \item{CMGx }{a numeric vector with the x-coordinates for the calculated course made good. Will be \code{NA} if
   end location is unknown (i.e. \code{ret == F} and \code{endcoords = NULL}. This is what Bowdith refers to as an "estimated position".)
   }
-  \item{CMGy }{a numeric vector with the y-coordinates for the calculated course made goodWill be \code{NA} if
+  \item{CMGy }{a numeric vector with the y-coordinates for the calculated course made good. Will be \code{NA} if
   end location is unknown (i.e. \code{ret == F} and \code{endcoords = NULL}. This is what Bowdith refers to as an "estimated position".)
   }
+  \item{depth }{a numeric vector of depth (or altitude), which is the same as the user input. Depth should be in the same units as x and y (preferably meters).
+  }  
   \item{speedh }{speed horizontal. A numeric vector of corrected horizontal speed values. If \code{speedhorizontal = "corrected"}
   , then this will be the same as the input speed}
   \item{speedmg }{speed made good. A numeric vector of speed made good values. These are the speeds between observations after 
@@ -70,6 +86,7 @@ navigation calculations by providing the flexibility for 3-dimensional parameter
   \item{errordistance }{This is the distance between the course steered end location and the known (i.e. real) end location}
   \item{set }{compass direction of the current. \eqn{0 <=} \code{set} \eqn{< 2\pi}
   }
+  \item{coordsystem }{The coordinate system of the output coordinates (i.e. \code{CSx, CSy, CMGx, CMGy})}
 }
 \references{
 Bowditch, N. (1995), \emph{The New American Practical Navigator}. Bethesda, MD: Defense Mapping Agency Hydrographic Topographic Center.
