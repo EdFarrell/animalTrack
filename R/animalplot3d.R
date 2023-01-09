@@ -40,8 +40,8 @@ function(roll, pitch, yaw, angle = "degree", add=FALSE, ...){
   segments3d(cbind(c(0,Cprime2[2,1]),c(0,Cprime2[2,2]),c(0,Cprime2[2,3])),col="blue",lwd=2)
   segments3d(cbind(c(0,Cprime2[3,1]),c(0,Cprime2[3,2]),c(0,Cprime2[3,3])),col="blue",lwd=2)
   texts3d(Cprime2[1,]*textoffset,texts=c("X"),cex=1.5) ; texts3d(Cprime2[2,]*textoffset,texts=c("Y"),cex=1.5) ;texts3d(Cprime2[3,]*textoffset,texts=c("Z"),cex=1.5)
-  rgl.spheres( Cprime2[1,],col="blue",radius=0.07) ; rgl.spheres( Cprime2[2,],col="blue",radius=smallradius) ; rgl.spheres( Cprime2[3,],col="blue",radius=smallradius)
-  rgl.viewpoint(userMatrix = goodview)
+  spheres3d( Cprime2[1,],col="blue",radius=0.07) ; spheres3d( Cprime2[2,],col="blue",radius=smallradius) ; spheres3d( Cprime2[3,],col="blue",radius=smallradius)
+  view3d(userMatrix = goodview)
 
   # Return the rotation matrix and the homogenous rotatation matrix used to make the rgl plot
   return(list("rotmat" = Cprime2,"hrotmat" = asHomogeneous(Cprime2)))
